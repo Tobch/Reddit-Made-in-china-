@@ -27,8 +27,7 @@ export default function PostCard({ post }) {
   const handleVote = async (value) => {
     if (!token) return alert("You must be logged in to vote!");
     try {
-      const res = await axios.post(
-        `http://localhost:5000/api/posts/${post._id}/vote`, 
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/posts/${post._id}/vote`, 
         { value },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -46,7 +45,7 @@ export default function PostCard({ post }) {
   const handleSummarize = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/posts/${post._id}/summarize`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${post._id}/summarize`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSummary(res.data.summary);
@@ -59,7 +58,7 @@ export default function PostCard({ post }) {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/posts/${post._id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/posts/${post._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       window.location.reload(); // Refresh to remove the post from the feed
@@ -70,7 +69,7 @@ export default function PostCard({ post }) {
 
   const handleSaveEdit = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/posts/${post._id}`, 
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/posts/${post._id}`, 
         { title: editTitle, content: editContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -92,7 +91,7 @@ export default function PostCard({ post }) {
       <div className="post-content-area">
         <div className="post-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <img 
-            src={post.author?.avatar ? `http://localhost:5000${post.author.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'}
+            src={post.author?.avatar ? `${import.meta.env.VITE_API_URL}${post.author.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'}
             alt="author avatar"
             className="post-avatar"
           />
@@ -140,17 +139,17 @@ export default function PostCard({ post }) {
                   <div key={idx} style={{ borderRadius: '4px', overflow: 'hidden', background: 'var(--bg-dark-hover)' }}>
                     {media.type === 'image' ? (
                       <img 
-                        src={`http://localhost:5000${media.url}`} 
-                        alt="post media"
-                        style={{ width: '100%', height: '250px', objectFit: 'cover', cursor: 'pointer' }}
-                        onClick={() => window.open(`http://localhost:5000${media.url}`)}
-                      />
-                    ) : (
-                      <video 
-                        src={`http://localhost:5000${media.url}`}
-                        controls
-                        style={{ width: '100%', height: '250px', objectFit: 'cover' }}
-                      />
+                          src={media.url.startsWith('http') ? media.url : `${import.meta.env.VITE_API_URL}${media.url}`} 
+                          alt="post media" 
+                          style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer' }}
+                          onClick={() => window.open(media.url.startsWith('http') ? media.url : `${import.meta.env.VITE_API_URL}${media.url}`)}
+                        />
+                        ) : (
+                        <video 
+                          src={media.url.startsWith('http') ? media.url : `${import.meta.env.VITE_API_URL}${media.url}`}
+                          controls
+                          style={{ width: '100%', height: '250px', objectFit: 'cover' }}
+                    />
                     )}
                   </div>
                 ))}

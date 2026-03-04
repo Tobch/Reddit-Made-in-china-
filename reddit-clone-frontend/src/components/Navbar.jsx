@@ -28,7 +28,7 @@ export default function Navbar() {
   useEffect(() => {
     if (!user) return;
 
-    const globalSocket = io('http://localhost:5000');
+    const globalSocket = io('import.meta.env.VITE_API_URL');
     
     // Register the user to receive private notifications
     globalSocket.emit('register_user', user._id);
@@ -51,7 +51,7 @@ export default function Navbar() {
     const delayDebounceFn = setTimeout(async () => {
       if (searchTerm.trim()) {
         try {
-          const res = await axios.get(`http://localhost:5000/api/search?q=${searchTerm}`);
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/search?q=${searchTerm}`);
           setResults(res.data);
           setShowSearchDropdown(true);
         } catch (err) {
@@ -122,8 +122,7 @@ export default function Navbar() {
                 <h4>Users</h4>
                 {results.users.map(u => (
                   <Link key={u._id} to={`/user/${u.username}`} className="search-item" onClick={() => {setShowSearchDropdown(false); setSearchTerm('');}}>
-                    <img src={u.avatar ? `http://localhost:5000${u.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} className="search-avatar" alt="avatar"/>
-                    u/{u.username}
+                   <img src={u.avatar ? (u.avatar.startsWith('http') ? u.avatar : `${import.meta.env.VITE_API_URL}${u.avatar}`) : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} className="search-avatar" alt="avatar"/>
                   </Link>
                 ))}
               </div>
@@ -185,7 +184,7 @@ export default function Navbar() {
             
             <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '12px', cursor: 'pointer' }}>
               <img 
-                src={user.avatar ? `http://localhost:5000${user.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
+                src={user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${import.meta.env.VITE_API_URL}${user.avatar}`) : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
                 alt="avatar" 
                 className="navbar-avatar" 
               />

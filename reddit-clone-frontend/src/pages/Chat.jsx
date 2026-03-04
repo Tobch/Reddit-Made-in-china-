@@ -21,12 +21,12 @@ export default function Chat() {
     const fetchChatData = async () => {
       try {
         // Get the other user's ID
-        const userRes = await axios.get(`http://localhost:5000/api/users/${username}`);
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${username}`);
         const otherUser = userRes.data;
         setChatUser(otherUser);
 
         // Get past messages
-        const historyRes = await axios.get(`http://localhost:5000/api/chat/${otherUser._id}`, {
+        const historyRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/chat/${otherUser._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMessages(historyRes.data);
@@ -42,7 +42,7 @@ export default function Chat() {
     if (!user || !chatUser) return;
 
     // Connect to the backend socket
-    socketRef.current = io('http://localhost:5000');
+    socketRef.current = io(import.meta.env.VITE_API_URL);
 
     // Create a unique, consistent room ID
     const roomId = [String(user._id), String(chatUser._id)].sort().join('_');
@@ -102,7 +102,7 @@ export default function Chat() {
       <div className="chat-header">
         <button onClick={() => navigate(-1)} className="btn-secondary" style={{ marginRight: '15px' }}>← Back</button>
         <img 
-          src={chatUser.avatar ? `http://localhost:5000${chatUser.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
+          src={chatUser.avatar ? (chatUser.avatar.startsWith('http') ? chatUser.avatar : `${import.meta.env.VITE_API_URL}${chatUser.avatar}`) : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'}
           alt="avatar" 
           className="navbar-avatar"
         />

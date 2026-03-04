@@ -15,13 +15,13 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/users/profile', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUsername(res.data.username);
         setEmail(res.data.email);
         if (res.data.avatar) {
-          setPreview(`http://localhost:5000${res.data.avatar}`);
+          setPreview(res.data.avatar.startsWith('http') ? res.data.avatar : `${import.meta.env.VITE_API_URL}${res.data.avatar}`);
         }
       } catch (err) {
         console.error("Error fetching profile", err);
@@ -52,7 +52,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await axios.put('http://localhost:5000/api/users/profile', formData, {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/users/profile`, formData, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data' 

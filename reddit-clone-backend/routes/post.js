@@ -5,41 +5,58 @@ const User = require('../models/User');
 const Community = require('../models/Community');
 const auth = require('../middleware/auth');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+
+// --- NEW CLOUDINARY SETUP ---
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Configure multer for file uploads
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'reddit-clone-posts',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'mp4', 'mov'],
+    resource_type: 'auto' // Important for allowing both images and videos
   }
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
-  fileFilter: (req, file, cb) => {
-    const isImage = file.mimetype.startsWith('image/');
-    const isVideo = file.mimetype.startsWith('video/');
-    if (isImage || isVideo) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only images and videos are allowed'));
-    }
+const upload = multer({ storage: storage });
+// -----------------------------
+
+// Your route stays mostly the same, but the file URL comes from Cloudinary now
+router.post('/', auth, upload.array('media', 5), async (req, res) => {
+  try {
+    // ... [keep your existing title/community validation checks] ...
+
+    // Process uploaded files directly from Cloudinary URLs
+    const media = (req.files || []).map(file => ({
+      type: file.mimetype.startsWith('video/') ? 'video' : 'image',
+      url: file.path // Cloudinary provides the secure URL in 'file.path'
+    }));
+
+    const newPost = new Post({
+      title: req.body.title,
+      content: req.body.content || '',
+      community: req.body.communityId,
+      author: req.user.id,
+      media
+    });
+
+    await newPost.save();
+    res.status(201).json(newPost);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
-// 1. CREATE A POST (Protected & Member-Only with file uploads)
+// 1. CREATE A POST (Protected & Member-Only with Cloudinary uploads)
 router.post('/', auth, upload.array('media', 5), async (req, res) => {
   try {
     const { title, content, communityId } = req.body;
@@ -64,10 +81,10 @@ router.post('/', auth, upload.array('media', 5), async (req, res) => {
       });
     }
 
-    // Process uploaded files
+    // Process uploaded files directly from Cloudinary URLs
     const media = (req.files || []).map(file => ({
-      type: file.mimetype.startsWith('image/') ? 'image' : 'video',
-      url: `/uploads/${file.filename}`
+      type: file.mimetype.startsWith('video/') ? 'video' : 'image',
+      url: file.path // Cloudinary provides the secure URL in 'file.path'
     }));
 
     const newPost = new Post({

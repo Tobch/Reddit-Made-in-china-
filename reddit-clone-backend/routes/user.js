@@ -2,21 +2,29 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+
+// --- NEW CLOUDINARY SETUP FOR AVATARS ---
 const multer = require('multer');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Ensure the 'uploads' directory exists so Multer doesn't crash
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads');
-}
-
-// Configure how files are stored
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+// Cloudinary relies on the .env variables you set up earlier
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const upload = multer({ storage });
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'reddit-clone-avatars',
+    allowed_formats: ['jpg', 'jpeg', 'png']
+  }
+});
+
+const upload = multer({ storage: storage });
+// ----------------------------------------
 
 // 1. GET CURRENT USER PROFILE (Protected)
 router.get('/profile', auth, async (req, res) => {
@@ -52,9 +60,9 @@ router.put('/profile', [auth, upload.single('avatar')], async (req, res) => {
     if (req.body.username) updateData.username = req.body.username;
     if (req.body.email) updateData.email = req.body.email;
 
-    // If Multer successfully processed an image, add the path to our update object
+    // If Multer/Cloudinary successfully processed an image, add the URL to our update object
     if (req.file) {
-      updateData.avatar = `/uploads/${req.file.filename}`;
+      updateData.avatar = req.file.path; // Cloudinary returns the full URL in file.path
     }
 
     const updatedUser = await User.findByIdAndUpdate(
