@@ -21,16 +21,16 @@ export default function Home() {
   return (
     <div style={{ display: 'flex', gap: '24px', width: '100%' }}>
       <div className="feed-container">
-        {posts.length === 0 ? (
-          <div className="empty-state">
-            <h2>No posts yet!</h2>
-            <p>Be the first to share something interesting.</p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard key={post._id} post={post} />
-          ))
-        )}
+        {Array.isArray(posts) && posts.length > 0 ? (
+        posts.map((post) => (
+          <PostCard key={post._id} post={post} />
+            ))
+          ) : (
+        <div className="empty-state">
+          <h2>No posts yet!</h2>
+          <p>Be the first to share something interesting.</p>
+        </div>
+      )}
       </div>
       
       <div className="sidebar-wrapper">
