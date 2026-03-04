@@ -37,7 +37,7 @@ Authorization: Bearer <token>
 ```
 
 ## Authentication Endpoints
-**Responsible Student: Zeyad**
+**Responsible Student: Ahmed Tabbash**
 
 ### Register User
 ```http
@@ -91,7 +91,7 @@ POST /api/auth/login
 ```
 
 ## User Management Endpoints
-**Responsible Student: Zeyad**
+**Responsible Student: Ahmed Tababsh**
 
 ### Get User Profile
 ```http
@@ -204,7 +204,7 @@ GET /api/users/posts/:postId/saved
 ```
 
 ## Post Management Endpoints
-**Responsible Student: Mohamed**
+**Responsible Student: Ahmed Nofull**
 
 ### Get All Posts
 ```http
@@ -291,7 +291,7 @@ DELETE /api/posts/:id
 **Parameters**: `id` (post ID)
 
 ## Comment Management Endpoints
-**Responsible Student: Mohamed**
+**Responsible Student: Ahmed Nofull**
 
 ### Get Comments for Post
 ```http
@@ -356,7 +356,7 @@ DELETE /api/comments/:postId/comments/:commentId
 **Parameters**: `postId`, `commentId`
 
 ## Subreddit Management Endpoints
-**Responsible Student: Mohamed**
+**Responsible Student: Ahmed Tabbash**
 
 ### Get All Subreddits
 ```http
@@ -487,7 +487,7 @@ DELETE /api/subreddits/:id/moderators
 ```
 
 ## Voting System Endpoints
-**Responsible Student: Yassin**
+**Responsible Student: Ahmed Nofull**
 
 ### Upvote Post
 ```http
@@ -532,7 +532,7 @@ POST /api/comments/:id/downvote
 **Parameters**: `id` (comment ID)
 
 ## Chat & Messaging Endpoints
-**Responsible Student: Yassin**
+**Responsible Student: Ahmed Nofull**
 
 ### Get User's Chats
 ```http
