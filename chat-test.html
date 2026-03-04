@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.io Chat Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #121212; color: #fff; max-width: 500px; margin: 0 auto; }
+    #chat-box { height: 300px; border: 1px solid #333; overflow-y: scroll; padding: 10px; margin-bottom: 10px; background: #1e1e1e; }
+    .message { margin-bottom: 8px; padding: 5px; border-radius: 4px; }
+    .my-msg { background: #2b5278; text-align: right; }
+    .stranger-msg { background: #333; text-align: left; }
+    .system-msg { color: #4caf50; font-size: 0.8em; text-align: center; }
+    form { display: flex; gap: 10px; }
+    input { flex: 1; padding: 10px; background: #333; color: white; border: 1px solid #555; }
+    button { padding: 10px 20px; cursor: pointer; background: #ff4500; color: white; border: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>Live Chat Test</h2>
+  <div id="chat-box"></div>
+  
+  <form id="chat-form">
+    <input id="message-input" autocomplete="off" placeholder="Type a message..." required />
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    // 1. Connect to our local Node.js backend
+    const socket = io('http://localhost:5000');
+
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+
+    // Helper function to append messages to the UI
+    function appendMessage(text, type) {
+      const div = document.createElement('div');
+      div.classList.add('message', type);
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
+    }
+
+    // 2. Listen for successful connection
+    socket.on('connect', () => {
+      appendMessage(`Connected to server! (Socket ID: ${socket.id})`, 'system-msg');
+    });
+
+    // 3. Send message to the backend
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = messageInput.value;
+      
+      // Emit the event to the server
+      socket.emit('send_message', msg);
+      
+      // Show it on our own screen
+      appendMessage(`You: ${msg}`, 'my-msg');
+      messageInput.value = '';
+    });
+
+    // 4. Listen for incoming messages from the backend
+    socket.on('receive_message', (data) => {
+      appendMessage(`Stranger: ${data}`, 'stranger-msg');
+    });
+  </script>
+</body>
+</html>
