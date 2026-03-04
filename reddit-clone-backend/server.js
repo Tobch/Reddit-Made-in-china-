@@ -13,40 +13,44 @@ const app = express();
 // --- WRAP EXPRESS APP IN HTTP SERVER ---
 const server = http.createServer(app);
 
-// --- INITIALIZE SOCKET.IO ---
-// In server.js
+// --- CORS CONFIGURATION ---
+// Combined into one clear block
 app.use(cors({
-  origin: ["http://localhost:5173", process.env.FRONTEND_URL], // We will set this in Render later
+  origin: ["http://localhost:5173", process.env.FRONTEND_URL], 
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
+// --- INITIALIZE SOCKET.IO ---
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173", process.env.FRONTEND_URL],
     methods: ["GET", "POST"]
   }
 });
+
 app.use(express.json());
 
-// Existing Routes
+// --- ROUTES ---
 const authRoutes = require('./routes/auth'); 
 const communityRoutes = require('./routes/community'); 
 const userRoutes = require('./routes/user');           
 const postRoutes = require('./routes/post');       
 const commentRoutes = require('./routes/comment');
 const newsRoutes = require('./routes/news');
+const searchRoutes = require('./routes/search');
+const chatRoutes = require('./routes/chat');
 
 app.use('/api/auth', authRoutes); 
 app.use('/api/communities', communityRoutes);          
-app.use('/api/users', userRoutes);                     
-app.use('/api/posts', postRoutes);                 
+app.use('/api/users', userRoutes);                      
+app.use('/api/posts', postRoutes);                  
 app.use('/api/comments', commentRoutes);
 app.use('/api/news', newsRoutes);
-app.use('/api/users', require('./routes/user'));
+app.use('/api/search', searchRoutes);
+app.use('/api/chat', chatRoutes);          
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/search', require('./routes/search'));
-app.use('/api/chat', require('./routes/chat'));          
 
 app.get('/', (req, res) => {
   res.send('Reddit Clone API is running!');
@@ -54,29 +58,24 @@ app.get('/', (req, res) => {
 
 // --- REAL-TIME CHAT LOGIC ---
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
-
 
 // SOCKET.IO LOGIC
 io.on('connection', (socket) => {
   console.log(`User connected to socket: ${socket.id}`);
 
-  // 1. Global Registration for Notifications
   socket.on('register_user', (userId) => {
-    socket.join(userId); // The user joins a private room named after their ID
+    socket.join(userId);
     console.log(`User ${userId} registered for global notifications`);
   });
 
-  // 2. Chat Room Registration
   socket.on('join_chat', (room) => {
     socket.join(room);
   });
 
-  // 3. Sending Messages
   socket.on('send_message', async (data) => {
     try {
       const Message = require('./models/Message');
-      const User = require('./models/User'); // Need this to get the sender's username
+      const User = require('./models/User'); 
       
       const newMessage = new Message({
         sender: data.senderId,
@@ -85,13 +84,10 @@ io.on('connection', (socket) => {
       });
       await newMessage.save();
 
-      // Fetch the sender's username so the notification knows who sent it
       const sender = await User.findById(data.senderId);
 
-      // Broadcast to the active chat room (for the Chat.jsx page)
       io.to(data.room).emit('receive_message', newMessage);
 
-      // Broadcast a GLOBAL notification to the receiver's personal room
       io.to(data.receiverId).emit('new_message_notification', {
         senderId: sender._id,
         senderUsername: sender.username,
@@ -108,14 +104,21 @@ io.on('connection', (socket) => {
   });
 });
 
-mongoose.connect(MONGO_URI)
+// --- ENHANCED MONGOOSE CONNECTION ---
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  connectTimeoutMS: 10000,        // Initial connection timeout
+  socketTimeoutMS: 45000,         // Close sockets after 45s of inactivity
+})
   .then(() => {
-    console.log(' Successfully connected to MongoDB');
+    console.log('✅ Successfully connected to MongoDB Atlas');
     
-    // --- IMPORTANT: CHANGE app.listen TO server.listen ---
-  server.listen(PORT, () => console.log(`Server running with WebSockets on port ${PORT}`));
+    // IMPORTANT: Listen using the 'server' (http), not 'app' (express)
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running with WebSockets on port ${PORT}`);
+    });
   })
   .catch((error) => {
-    console.error(' Error connecting to MongoDB:', error.message);
+    console.error('❌ Error connecting to MongoDB:', error.message);
     process.exit(1); 
   });
