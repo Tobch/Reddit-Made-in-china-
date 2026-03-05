@@ -18,7 +18,7 @@ export default function CommentItem({ comment, postId, onReplySubmit }) {
       <div className="comment-content">
         <p className="comment-author">
           <img 
-            src={comment.author?.avatar ? `http://localhost:5000${comment.author.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
+            src={comment.author?.avatar ? `${import.meta.env.VITE_API_URL}${comment.author.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
             className="post-avatar" 
             alt="avatar" 
           />

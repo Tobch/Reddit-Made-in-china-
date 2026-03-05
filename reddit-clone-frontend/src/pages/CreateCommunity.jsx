@@ -12,7 +12,7 @@ export default function CreateCommunity() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/communities', 
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/communities`, 
         { name, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
