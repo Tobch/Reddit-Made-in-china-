@@ -13,7 +13,7 @@ export default function Sidebar() {
         const res = await axios.get('http://localhost:5000/api/communities');
         setCommunities(res.data);
       } catch (err) {
-        print("Error fetching sidebar communities:", err);
+        console.error("Error fetching sidebar communities:", err);
       }
     };
     fetchCommunities();
