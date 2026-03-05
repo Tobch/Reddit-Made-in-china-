@@ -28,7 +28,7 @@ export default function Navbar() {
   useEffect(() => {
     if (!user) return;
 
-    const globalSocket = io('import.meta.env.VITE_API_URL');
+    const globalSocket = io(import.meta.env.VITE_API_URL);
     
     // Register the user to receive private notifications
     globalSocket.emit('register_user', user._id);
