@@ -14,8 +14,8 @@ export default function Community() {
   useEffect(() => {
     const fetchCommunityData = async () => {
       try {
-        const commRes = await axios.get(`http://localhost:5000/api/communities/${id}`);
-        const postsRes = await axios.get(`http://localhost:5000/api/posts/community/${id}`);
+        const commRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/communities/${id}`);
+        const postsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/community/${id}`);
         
         setCommunity(commRes.data);
         setPosts(postsRes.data);
@@ -36,7 +36,7 @@ export default function Community() {
 
   const handleJoinLeave = async () => {
     try {
-      const res = await axios.post(`http://localhost:5000/api/communities/${id}/join`, {}, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/communities/${id}/join`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsMember(!isMember);

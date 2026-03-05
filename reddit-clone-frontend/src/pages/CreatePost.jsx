@@ -16,7 +16,7 @@ export default function CreatePost() {
 
   useEffect(() => {
     const fetchCommunities = async () => {
-      const res = await axios.get('http://localhost:5000/api/communities');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/communities`);
       const joinedOnly = res.data.filter(c => 
         c.members.includes(user?._id)
       );
@@ -76,7 +76,7 @@ export default function CreatePost() {
         formData.append('media', file);
       });
 
-      await axios.post('http://localhost:5000/api/posts', 
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/posts`, 
         formData,
         { 
           headers: { 

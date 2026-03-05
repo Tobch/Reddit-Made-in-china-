@@ -10,7 +10,7 @@ export default function Sidebar() {
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/communities');
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/communities`);
         setCommunities(res.data);
       } catch (err) {
         console.error("Error fetching sidebar communities:", err);

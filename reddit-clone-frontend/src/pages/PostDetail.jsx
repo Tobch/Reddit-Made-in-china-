@@ -16,8 +16,8 @@ export default function PostDetail() {
   useEffect(() => {
   const fetchPostAndComments = async () => {
     try {
-      const postRes = await axios.get(`http://localhost:5000/api/posts/${id}`);
-      const commentsRes = await axios.get(`http://localhost:5000/api/comments/post/${id}`);
+      const postRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${id}`);
+      const commentsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/comments/post/${id}`);
       
       const postData = postRes.data;
       setPost(postData);
@@ -43,7 +43,7 @@ export default function PostDetail() {
   const handleJoinLeave = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/communities/${post.community._id}/join`,
+        `${import.meta.env.VITE_API_URL}/api/communities/${post.community._id}/join`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -51,7 +51,7 @@ export default function PostDetail() {
       console.log('Join/Leave response:', res.data);
       
       // Refetch the post to get updated community members
-      const updatedPostRes = await axios.get(`http://localhost:5000/api/posts/${id}`);
+      const updatedPostRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/${id}`);
       const updatedPost = updatedPostRes.data;
       setPost(updatedPost);
       
@@ -79,13 +79,13 @@ export default function PostDetail() {
     if (!text || !text.trim()) return;
 
     try {
-      await axios.post(`http://localhost:5000/api/comments/post/${id}`, 
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/comments/post/${id}`, 
         { text, parentCommentId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
       // Refetch comments to get the newly updated tree from the DB
-      const commentsRes = await axios.get(`http://localhost:5000/api/comments/post/${id}`);
+      const commentsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/comments/post/${id}`);
       setComments(commentsRes.data);
       
       // Only clear the main box if it was a main comment

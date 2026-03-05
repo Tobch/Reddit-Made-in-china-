@@ -15,8 +15,8 @@ export default function UserProfile() {
   useEffect(() => {
     const fetchUserAndPosts = async () => {
       try {
-        const userRes = await axios.get(`http://localhost:5000/api/users/${username}`);
-        const postsRes = await axios.get(`http://localhost:5000/api/posts/user/${username}`);
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/${username}`);
+        const postsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/posts/user/${username}`);
         
         setProfileUser(userRes.data);
         setPosts(postsRes.data);
@@ -51,7 +51,7 @@ export default function UserProfile() {
       <div style={{ width: '300px' }}>
         <div className="auth-card" style={{ padding: '20px', textAlign: 'center' }}>
           <img 
-            src={profileUser.avatar ? `http://localhost:5000${profileUser.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
+            src={profileUser.avatar ? `${import.meta.env.VITE_API_URL}${profileUser.avatar}` : 'https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png'} 
             alt="avatar" 
             style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }}
           />

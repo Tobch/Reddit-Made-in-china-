@@ -10,7 +10,7 @@ export default function NewsSidebar() {
     const fetchNews = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:5000/api/news/trending', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/news/trending`, {
           timeout: 8000
         });
         setNews(res.data.articles || []);
