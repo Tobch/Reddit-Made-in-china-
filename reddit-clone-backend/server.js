@@ -111,14 +111,14 @@ mongoose.connect(process.env.MONGO_URI, {
   socketTimeoutMS: 45000,         // Close sockets after 45s of inactivity
 })
   .then(() => {
-    console.log('✅ Successfully connected to MongoDB Atlas');
+    console.log('Successfully connected to MongoDB Atlas');
     
     // IMPORTANT: Listen using the 'server' (http), not 'app' (express)
     server.listen(PORT, () => {
-      console.log(`🚀 Server running with WebSockets on port ${PORT}`);
+      console.log(`Server running with WebSockets on port ${PORT}`);
     });
   })
   .catch((error) => {
-    console.error('❌ Error connecting to MongoDB:', error.message);
+    console.error('Error connecting to MongoDB:', error.message);
     process.exit(1); 
   });
